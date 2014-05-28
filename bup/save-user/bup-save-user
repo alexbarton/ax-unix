@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# bup-save-user -- Save user data using bup(1)
+# Copyright (c)2013-2014 Alexander Barton (alex@barton.de)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+NAME=`basename "$0"`
+
+Usage()
+{
+	echo "Usage: $NAME"; echo
+	exit 1
+}
+
+[ $# -eq 0 ] || Usage
+
+if [ ! -d "$HOME/.bup" ]; then
+	echo "$NAME: \"$HOME/.bup\" does not exist. Initialite it first!"
+	exit 1
+fi
+
+paths="$HOME"
+[ -n "$LOCAL_HOME" -a "$LOCAL_HOME" != "$HOME" -a -d "$LOCAL_HOME" ] \
+	&& paths="$paths $LOCAL_HOME"
+[ -d "/var/spool/mail/$LOGNAME" ] \
+	&& paths="$paths /var/spool/mail/$LOGNAME"
+
+set -x
+
+bup index --update --xdev --exclude-rx="/.cache/." $paths || exit 1
+
+bup save --name "$LOGNAME" $paths
+exit_code=$?
+
+bup ls "$LOGNAME" || exit 1
+
+exit $exit_code
