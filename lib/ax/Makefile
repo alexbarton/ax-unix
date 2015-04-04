@@ -8,6 +8,14 @@
 # (at your option) any later version.
 #
 
-SUBDIRS = lib bup
+ALL = README ax-common.sh
 
-include Makefile.ax
+include ../../Makefile.ax
+
+install-local: ax-common.sh
+	install -d -o $(USER) -g $(GROUP) -m 755 \
+	 $(DESTDIR)$(PREFIX)/lib/ax
+	install -p -o $(USER) -g $(GROUP) -m 755 README \
+	 $(DESTDIR)$(PREFIX)/lib/ax/README
+	install -p -o $(USER) -g $(GROUP) -m 755 ax-common.sh \
+	 $(DESTDIR)$(PREFIX)/lib/ax/ax-common.sh

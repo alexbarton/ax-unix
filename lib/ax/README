@@ -1,0 +1,31 @@
+ax-unix: Alex' UNIX Tools & Scripts
+Copyright (c)2013-2015 Alexander Barton (alex@barton.de)
+
+This directory contains library files to use in 3rd party applications and
+scripts. Please see below for usage information.
+
+
+ax-common.sh
+------------
+
+This is a shell script library containing common useful functions. If you want
+to use it in your own code, your script must include ("source") this library
+file, and therefore it has to check some common locations (if you don't bundle
+it in some other ways and exactly know the location it is installed in).
+
+Use something like the following in your scrips:
+
+----> cut here <---------------------------------------------------------------
+# Include "ax-common.sh":
+for dir in "$HOME/lib" "$HOME/.ax" /usr/local /opt/ax /usr; do
+	[ -z "$ax_common_sourced" ] || break
+	ax_common="${dir}/lib/ax/ax-common.sh"
+	[ -r "$ax_common" ] && source "$ax_common"
+done
+if [ -z "$ax_common_sourced" ]; then
+	echo "Error (`basename "$0"`): \"ax-common.sh\" not found, aborting!"
+	echo "Please install 'ax-unix', \"Alex' UNIX Tools & Scripts\", and try again."
+	exit 99
+fi
+unset dir ax_common ax_common_sourced
+----> cut here <---------------------------------------------------------------

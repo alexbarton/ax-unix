@@ -8,6 +8,6 @@
 # (at your option) any later version.
 #
 
-SUBDIRS = lib bup
+SUBDIRS = ax
 
-include Makefile.ax
+include ../Makefile.ax
