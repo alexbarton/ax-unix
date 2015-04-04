@@ -17,5 +17,5 @@ install-local: ax-common.sh
 	 $(DESTDIR)$(PREFIX)/lib/ax
 	install -p -o $(USER) -g $(GROUP) -m 644 README \
 	 $(DESTDIR)$(PREFIX)/lib/ax/README
-	install -p -o $(USER) -g $(GROUP) -m 755 ax-common.sh \
+	install -p -o $(USER) -g $(GROUP) -m 644 ax-common.sh \
 	 $(DESTDIR)$(PREFIX)/lib/ax/ax-common.sh
