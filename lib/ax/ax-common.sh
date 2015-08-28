@@ -23,9 +23,9 @@ ax_msg1() {
 		*)	c="0";
 	esac
 	# print colored word(s):
-	printf "\x1b[0;${c}m"
+	printf "\033[0;${c}m"
 	/bin/echo -n "${1}"
-	printf "\x1b[0m "
+	printf "\033[0m "
 	shift
 	# print remaining word(s) and trailing newline:
 	echo "${*}"
