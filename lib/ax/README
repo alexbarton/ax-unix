@@ -1,5 +1,5 @@
 ax-unix: Alex' UNIX Tools & Scripts
-Copyright (c)2013-2015 Alexander Barton (alex@barton.de)
+Copyright (c)2013-2016 Alexander Barton (alex@barton.de)
 
 This directory contains library files to use in 3rd party applications and
 scripts. Please see below for usage information.
@@ -17,10 +17,12 @@ Use something like the following in your scrips:
 
 ----> cut here <---------------------------------------------------------------
 # Include "ax-common.sh":
+ax_common_sourced=
 for dir in "$HOME/lib" "$HOME/.ax" /usr/local /opt/ax /usr; do
 	[ -z "$ax_common_sourced" ] || break
 	ax_common="${dir}/lib/ax/ax-common.sh"
-	[ -r "$ax_common" ] && source "$ax_common"
+	# shellcheck source=/usr/local/lib/ax/ax-common.sh
+	[ -r "$ax_common" ] && . "$ax_common"
 done
 if [ -z "$ax_common_sourced" ]; then
 	echo "Error (`basename "$0"`): \"ax-common.sh\" not found, aborting!"
