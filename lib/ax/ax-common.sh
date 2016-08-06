@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # ax-common.sh -- Common Functions for Shell Scripts
 # Copyright (c)2013-2015 Alexander Barton (alex@barton.de)
@@ -8,6 +9,7 @@
 # (at your option) any later version.
 #
 
+# shellcheck disable=SC2034
 ax_common_sourced=1
 
 # Display a colored message.
@@ -23,9 +25,7 @@ ax_msg1() {
 		*)	c="0";
 	esac
 	# print colored word(s):
-	printf "\033[0;${c}m"
-	/bin/echo -n "${1}"
-	printf "\033[0m "
+	printf "\033[0;%sm%s\033[0m " "${c}" "${1}"
 	shift
 	# print remaining word(s) and trailing newline:
 	echo "${*}"

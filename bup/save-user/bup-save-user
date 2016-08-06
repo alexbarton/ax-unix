@@ -25,7 +25,7 @@ if [ ! -d "$HOME/.bup" ]; then
 fi
 
 paths="$HOME"
-[ -n "$LOCAL_HOME" -a "$LOCAL_HOME" != "$HOME" -a -d "$LOCAL_HOME" ] \
+[ -n "$LOCAL_HOME" ] && [ "$LOCAL_HOME" != "$HOME" ] && [ -d "$LOCAL_HOME" ] \
 	&& paths="$paths $LOCAL_HOME"
 [ -d "/var/spool/mail/$LOGNAME" ] \
 	&& paths="$paths /var/spool/mail/$LOGNAME"
