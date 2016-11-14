@@ -1,6 +1,6 @@
 #
 # ax-unix: Alex' UNIX Tools & Scripts
-# Copyright (c)2013-2014 Alexander Barton (alex@barton.de)
+# Copyright (c)2013-2016 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
