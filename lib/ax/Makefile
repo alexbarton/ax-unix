@@ -13,9 +13,9 @@ ALL = README ax-common.sh
 include ../../Makefile.ax
 
 install-local: ax-common.sh
-	install -d -o $(USER) -g $(GROUP) -m 755 \
-	 $(DESTDIR)$(PREFIX)/lib/ax
-	install -p -o $(USER) -g $(GROUP) -m 644 README \
-	 $(DESTDIR)$(PREFIX)/lib/ax/README
-	install -p -o $(USER) -g $(GROUP) -m 644 ax-common.sh \
-	 $(DESTDIR)$(PREFIX)/lib/ax/ax-common.sh
+	install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
+	 "$(DESTDIR)$(PREFIX)/lib/ax"
+	install -p -o "$(USER)" -g "$(GROUP)" -m 644 README \
+	 "$(DESTDIR)$(PREFIX)/lib/ax/README"
+	install -p -o "$(USER)" -g "$(GROUP)" -m 644 ax-common.sh \
+	 "$(DESTDIR)$(PREFIX)/lib/ax/ax-common.sh"
