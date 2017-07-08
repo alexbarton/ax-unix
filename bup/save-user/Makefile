@@ -13,7 +13,8 @@ ALL = bup-save-user
 include ../../Makefile.ax
 
 install-local: bup-save-user
-	install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
-	 "$(DESTDIR)$(PREFIX)/bin"
+	[ -d "$(DESTDIR)$(PREFIX)/bin" ] || \
+		install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
+		 "$(DESTDIR)$(PREFIX)/bin"
 	install -p -o "$(USER)" -g "$(GROUP)" -m 755 bup-save-user \
 	 "$(DESTDIR)$(PREFIX)/bin/bup-save-user"
