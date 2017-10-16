@@ -9,7 +9,7 @@
 # (at your option) any later version.
 #
 
-NAME=`basename "$0"`
+NAME=$(basename "$0")
 
 Usage()
 {
