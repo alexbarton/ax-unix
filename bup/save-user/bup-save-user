@@ -37,6 +37,6 @@ bup index --update --xdev --exclude-rx="/.cache/." $paths || exit 1
 bup save --name "$LOGNAME" $paths
 exit_code=$?
 
-bup ls "$LOGNAME" || exit 1
+bup ls "$LOGNAME" || exit 1 | column
 
 exit $exit_code
