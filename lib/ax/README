@@ -1,5 +1,5 @@
 ax-unix: Alex' UNIX Tools & Scripts
-Copyright (c)2013-2016 Alexander Barton (alex@barton.de)
+Copyright (c)2013-2017 Alexander Barton (alex@barton.de)
 
 This directory contains library files to use in 3rd party applications and
 scripts. Please see below for usage information.
@@ -25,7 +25,7 @@ for dir in "$HOME/lib" "$HOME/.ax" /usr/local /opt/ax /usr; do
 	[ -r "$ax_common" ] && . "$ax_common"
 done
 if [ -z "$ax_common_sourced" ]; then
-	echo "Error (`basename "$0"`): \"ax-common.sh\" not found, aborting!"
+	echo "Error ($(basename "$0")): \"ax-common.sh\" not found, aborting!"
 	echo "Please install 'ax-unix', \"Alex' UNIX Tools & Scripts\", and try again."
 	exit 99
 fi
