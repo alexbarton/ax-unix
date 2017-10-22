@@ -40,12 +40,41 @@ ax_msg() {
 	ax_msg1 "$level" "$*"
 }
 
+# Display an error message to stderr.
+#  [-l]  Log message to syslog, too.
+#  $1-n  Error message.
+ax_error() {
+	if [ "$1" = "-l" ]; then
+		shift
+		if [ -n "$NAME" ]; then
+			logger -t "$NAME" "$*"
+		else
+			logger "$*"
+		fi
+	fi
+	ax_msg1 2 "$*" >&2
+}
+
 # Abort the script with an error message and exit code 1.
-#  $1  Error message [optional]. Will be formatted as "Error: %s Aborting!".
-#      if no error message is given, "Aborting!" will be printed.
+#  [-l]  Log message to syslog, too.
+#  $1    Error message [optional]. Will be formatted as "Error: %s Aborting!".
+#        if no error message is given, "Aborting!" will be printed.
 ax_abort() {
-	[ $# -gt 0 ] \
-		&& ax_msg 2 "Error: $* Aborting!" \
-		|| ax_msg 2 "Aborting!"
+	if [ "$1" = "-l" ]; then
+		log_param="-l"
+	else
+		unset log_param
+	fi
+	if [ $# -gt 0 ]; then
+		ax_error $log_param "Error: $* Aborting!"
+	else
+		ax_error $log_param "Aborting!"
+	fi
 	exit 1
+}
+
+# Display a debug message, when debug mode is enabled, that is, the environment
+# variable "DEBUG" is set.
+ax_debug() {
+	[ -n "$DEBUG" ] && ax_msg1 1 "DEBUG:" "$*"
 }
