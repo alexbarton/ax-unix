@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ax-common.sh -- Common Functions for Shell Scripts
-# Copyright (c)2013-2015 Alexander Barton (alex@barton.de)
+# Copyright (c)2013-2017 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,8 +9,10 @@
 # (at your option) any later version.
 #
 
+# "ax_common_sourced" is a flag and stores the "API version" of "ax-common.sh",
+# too. It should be incremented each time the public API changes!
 # shellcheck disable=SC2034
-ax_common_sourced=1
+ax_common_sourced=2
 
 # Display a colored message.
 #  $1    Level: -=title, 0=ok, 1=warning, 2=error.
