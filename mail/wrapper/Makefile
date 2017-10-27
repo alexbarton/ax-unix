@@ -12,6 +12,9 @@ ALL = mail-wrapper
 
 include ../../Makefile.ax
 
+check-local:
+	./mail-wrapper --help 2>&1 | grep 'mail-wrapper reads from standard input' >/dev/null
+
 install-local: mail-wrapper
 	install -d -o $(USER) -g $(GROUP) -m 755 \
 	 $(DESTDIR)/usr/local/bin
