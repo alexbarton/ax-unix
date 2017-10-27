@@ -25,7 +25,7 @@ for dir in "$HOME/lib" "$HOME/.ax" /usr/local /opt/ax /usr; do
 	[ -r "$ax_common" ] && . "$ax_common"
 done
 if [ -z "$ax_common_sourced" ]; then
-	echo "Error ($(basename "$0")): \"ax-common.sh\" not found, aborting!"
+	echo "Error ($(basename "$0")): \"ax-common.sh\" not found, aborting!" >&2
 	echo "Please install 'ax-unix', \"Alex' UNIX Tools & Scripts\", and try again."
 	exit 99
 fi

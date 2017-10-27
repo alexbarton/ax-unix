@@ -13,14 +13,14 @@ NAME=$(basename "$0")
 
 Usage()
 {
-	echo "Usage: $NAME"; echo
+	echo "Usage: $NAME" 2>&1; echo
 	exit 1
 }
 
 [ $# -eq 0 ] || Usage
 
 if [ ! -d "$HOME/.bup" ]; then
-	echo "$NAME: \"$HOME/.bup\" does not exist. Initialite it first!"
+	echo "$NAME: \"$HOME/.bup\" does not exist. Initialite it first!" >&2
 	exit 1
 fi
 
