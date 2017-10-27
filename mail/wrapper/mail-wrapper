@@ -27,19 +27,21 @@ fi
 unset dir ax_common ax_common_sourced
 
 usage() {
-	echo >&2
-	echo "Usage:" >&2
-	echo "  $NAME [--help|--usage]" >&2
-	echo "  $NAME {parameters} [<command> [<arg> [<…>]]]" >&2
-	echo >&2
-	echo "  -C                      Use the \"C\" locale, no localized (error) messages." >&2
-	echo "  --errors|-e             Generate email on errors only." >&2
-	echo "  --from|-f               Email address of the sender of the email." >&2
-	echo "  --subject|-s <subject>  Subject for the email." >&2
-	echo "  --to|-t <address>       Email address to send the email to." >&2
-	echo >&2
-	echo "When no <command> is given, $NAME reads from standard input." >&2
-	echo >&2
+	{
+		echo
+		echo "Usage:"
+		echo "  $NAME [--help|--usage]"
+		echo "  $NAME {parameters} [<command> [<arg> [<…>]]]"
+		echo
+		echo "  -C                      Use the \"C\" locale, no localized (error) messages."
+		echo "  --errors|-e             Generate email on errors only."
+		echo "  --from|-f               Email address of the sender of the email."
+		echo "  --subject|-s <subject>  Subject for the email."
+		echo "  --to|-t <address>       Email address to send the email to."
+		echo
+		echo "When no <command> is given, $NAME reads from standard input."
+		echo
+	} >&2
 	exit "${1:-0}"
 }
 
