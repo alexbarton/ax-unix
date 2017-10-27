@@ -86,6 +86,10 @@ while [[ $# -gt 0 ]]; do
 			[[ $# -gt 0 ]] || syntax_error
 			subject="$1"
 			;;
+		"--suppress-empty")
+			# Ignore this switch for compatibility with an other
+			# "mail-wrapper" script. This is the default anyway!
+			;;
 		"--to"|"-t")
 			shift
 			[[ $# -gt 0 ]] || syntax_error
