@@ -50,9 +50,27 @@ syntax_error() {
 	usage 2
 }
 
+clean_up() {
+	if [[ -z "$proc_fd_works" ]]; then
+		ax_debug "Cleaning temporary files ..."
+		[[ -n "$buffer_file" ]] && rm -f "$buffer_file"
+		[[ -n "$error_file" ]] && rm -f "$error_file"
+	fi
+}
+
+case "$(uname)" in
+	"Darwin")
+		unset proc_fd_works
+		;;
+	*)
+		proc_fd_works=1
+esac
+
 # Initialize internal state.
 unset is_error
 host=$(hostname -f 2>/dev/null || hostname)
+
+trap clean_up EXIT
 
 # Some defaults (can be adjusted by command line parameters).
 unset do_errors_only
@@ -115,9 +133,11 @@ buffer_file=$(mktemp) \
 ax_debug "buffer_file=\"$buffer_file\""
 exec 3>"$buffer_file" \
 	|| ax_abort -l "Failed to redirect FD #3 to buffer file!"
-rm "$buffer_file" \
-	|| ax_error -l "Failed to delete buffer file: \"$buffer_file\"!"
-buffer_file="/dev/fd/3"
+if [[ -n "$proc_fd_works" ]]; then
+	rm "$buffer_file" \
+		|| ax_error -l "Failed to delete buffer file: \"$buffer_file\"!"
+	buffer_file="/dev/fd/3"
+fi
 
 if [[ $# -gt 0 ]]; then
 	# Execute command and save output in buffer file.
@@ -127,9 +147,11 @@ if [[ $# -gt 0 ]]; then
 	ax_debug "error_file=\"$error_file\""
 	exec 4>"$error_file" \
 		|| ax_abort -l "Failed to redirect FD #4 to error file!"
-	rm "$error_file" \
-		|| ax_error -l "Failed to delete error buffer file: \"$error_file\"!"
-	error_file="/dev/fd/4"
+	if [[ -n "$proc_fd_works" ]]; then
+		rm "$error_file" \
+			|| ax_error -l "Failed to delete error buffer file: \"$error_file\"!"
+		error_file="/dev/fd/4"
+	fi
 
 	job=$(basename "$1")
 
