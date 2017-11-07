@@ -36,6 +36,7 @@ usage() {
 		echo "  -C                      Use the \"C\" locale, no localized (error) messages."
 		echo "  --errors|-e             Generate email on errors only."
 		echo "  --from|-f               Email address of the sender of the email."
+		echo "  --stderr-is-warning|-W  Exit code indicates error; stderr is only warning."
 		echo "  --subject|-s <subject>  Subject for the email."
 		echo "  --to|-t <address>       Email address to send the email to."
 		echo
@@ -67,13 +68,16 @@ case "$(uname)" in
 esac
 
 # Initialize internal state.
-unset is_error
+buffer_file=""
+error_file=""
+error_level=0
 host=$(hostname -f 2>/dev/null || hostname)
 
 trap clean_up EXIT
 
 # Some defaults (can be adjusted by command line parameters).
 unset do_errors_only
+unset stderr_is_warning
 unset subject
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
 to="$from"
@@ -103,6 +107,9 @@ while [[ $# -gt 0 ]]; do
 			shift
 			[[ $# -gt 0 ]] || syntax_error
 			subject="$1"
+			;;
+		"--stderr-is-warning"|"-W")
+			stderr_is_warning=1
 			;;
 		"--suppress-empty")
 			# Ignore this switch for compatibility with an other
@@ -175,16 +182,30 @@ fi
 
 ax_debug "exit_code=$exit_code"
 
+declare -i count_all count_err
 count_all=$(wc -l <"$buffer_file" || ax_abort -l "Failed to count buffer file!")
 count_err=$(wc -l <"$error_file" || ax_abort -l "Failed to count error file!")
 
 # Error or no error -- that's the question! An error is assumed when either the
 # exit code of the command was non-zero or there was output to stderr.
-[[ $count_err -gt 0 || $exit_code -ne 0 ]] && is_error=1
+# But when stderr_is_warning is set, messages on stderr result on a warning only!
+if [[ $exit_code -ne 0 ]]; then
+	error_level=2
+elif [[ $count_err -gt 0 ]]; then
+	[[ -n $stderr_is_warning ]] && error_level=1 || error_level=2
+else
+	error_level=0
+fi
 
 # Construct email subject ...
 [[ -z "$subject" ]] && subject="$host: $job report"
-[[ -n "$is_error" ]] && subject="$subject - ERROR!" || subject="$subject - success"
+if [[ "$error_level" -eq 0 ]]; then
+	subject="$subject - success"
+elif [[ "$error_level" -eq 1 ]]; then
+	subject="$subject - WARNING!"
+else
+	subject="$subject - ERROR!"
+fi
 
 ax_debug "from=\"$from\""
 ax_debug "to=\"$to\""
@@ -200,14 +221,14 @@ fi
 
 ax_debug "count_all=$count_all"
 ax_debug "count_err=$count_err"
-ax_debug "is_error=$is_error"
+ax_debug "error_level=$error_level"
 
 # No errors detected (exit code & stderr), and email should be sent on errors
 # only: so exit early!
-[[ -z "$is_error" && -n "$do_errors_only" ]] && exit $exit_code
+[[ "$error_level" -lt 2 && -n "$do_errors_only" ]] && exit $exit_code
 
 # No error detected and no output at all: skip email, exit early:
-[[ -z "$is_error" && $count_all -eq 0 ]] && exit $exit_code
+[[ "$error_level" -eq 0 && $count_all -eq 0 ]] && exit $exit_code
 
 # Build the report mail.
 # Make sure to ignore all mail(1) configuration files, system wide /etc/mailrc
