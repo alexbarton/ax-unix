@@ -17,6 +17,6 @@ check-local:
 
 install-local: mail-wrapper
 	install -d -o $(USER) -g $(GROUP) -m 755 \
-	 $(DESTDIR)/usr/local/bin
+	 $(DESTDIR)$(PREFIX)/bin
 	install -p -o $(USER) -g $(GROUP) -m 755 mail-wrapper \
-	 $(DESTDIR)/usr/local/bin/mail-wrapper
+	 $(DESTDIR)$(PREFIX)/bin/mail-wrapper
