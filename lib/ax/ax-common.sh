@@ -14,20 +14,26 @@
 # shellcheck disable=SC2034
 ax_common_sourced=2
 
-# Display a colored message.
+# Display a colored message (a plain message, when not writing to a terminal).
 #  $1    Level: -=title, 0=ok, 1=warning, 2=error.
 #  $2    Word(s) to highlight.
 #  $3-n  Remaining word(s). [optional]
 ax_msg1() {
-	case "$1" in
-		"0")	c="32"; shift; ;;	# green
-		"1")	c="33"; shift; ;;	# yellow
-		"2")	c="31"; shift; ;;	# red
-		"-")	c="1";  shift; ;;	# bold
-		*)	c="0";
-	esac
-	# print colored word(s):
-	printf "\033[0;%sm%s\033[0m " "${c}" "${1}"
+	if [ -t 1 ]; then
+		# writing to a terminal ...
+		case "$1" in
+			"0")	c="32"; shift; ;;	# green
+			"1")	c="33"; shift; ;;	# yellow
+			"2")	c="31"; shift; ;;	# red
+			"-")	c="1";  shift; ;;	# bold
+			*)	c="0";
+		esac
+		# print colored word(s):
+		printf "\033[0;%sm%s\033[0m " "${c}" "${1}"
+	else
+		# print plain text:
+		printf "%s " "${1}"
+	fi
 	shift
 	# print remaining word(s) and trailing newline:
 	echo "${*}"
