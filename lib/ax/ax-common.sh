@@ -64,6 +64,7 @@ ax_error() {
 ax_abort() {
 	if [ "$1" = "-l" ]; then
 		log_param="-l"
+		shift
 	else
 		unset log_param
 	fi
