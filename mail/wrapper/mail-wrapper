@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # mail-wrapper -- Report results of a command by email
-# Copyright (c)2017 Alexander Barton (alex@barton.de)
+# Copyright (c)2017,2018 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ usage() {
 		echo "  $NAME {parameters} [<command> [<arg> [<…>]]]"
 		echo
 		echo "  -C                      Use the \"C\" locale, no localized (error) messages."
+		echo "  --dontfail|-n           Don't return the error code of the command called."
 		echo "  --errors|-e             Generate email on errors only."
 		echo "  --from|-f               Email address of the sender of the email."
 		echo "  --stderr-is-warning|-W  Exit code indicates error; stderr is only warning."
@@ -77,6 +78,7 @@ trap clean_up EXIT
 
 # Some defaults (can be adjusted by command line parameters).
 unset do_errors_only
+unset dont_fail
 unset stderr_is_warning
 unset subject
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
@@ -91,6 +93,9 @@ while [[ $# -gt 0 ]]; do
 			;;
 		"--debug"|"-D")
 			export DEBUG=1
+			;;
+		"--dontfail"|"-n")
+			dont_fail=1
 			;;
 		"--errors"|"-e")
 			do_errors_only=1
@@ -265,4 +270,4 @@ export MAILRC=/dev/null
 ) | mail -n -a "From: $from" -s "$subject" "$to" \
 	|| ax_abort -l "Failed to send email to \"$to\"!"
 
-exit $exit_code
+[[ -n "$dont_fail" ]] && exit 0 || exit $exit_code
