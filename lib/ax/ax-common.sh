@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ax-common.sh -- Common Functions for Shell Scripts
-# Copyright (c)2013-2017 Alexander Barton (alex@barton.de)
+# Copyright (c)2013-2018 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,16 +19,15 @@ ax_common_sourced=2
 #  $2    Word(s) to highlight.
 #  $3-n  Remaining word(s). [optional]
 ax_msg1() {
+	case "$1" in
+		"0")	c="32"; shift; ;;	# green
+		"1")	c="33"; shift; ;;	# yellow
+		"2")	c="31"; shift; ;;	# red
+		"-")	c="1";  shift; ;;	# bold
+		*)	c="0";
+	esac
 	if [ -t 1 ]; then
-		# writing to a terminal ...
-		case "$1" in
-			"0")	c="32"; shift; ;;	# green
-			"1")	c="33"; shift; ;;	# yellow
-			"2")	c="31"; shift; ;;	# red
-			"-")	c="1";  shift; ;;	# bold
-			*)	c="0";
-		esac
-		# print colored word(s):
+		# writing to a terminal, print colored word(s):
 		printf "\\033[0;%sm%s\\033[0m " "${c}" "${1}"
 	else
 		# print plain text:
