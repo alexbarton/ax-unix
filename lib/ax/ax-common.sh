@@ -29,7 +29,7 @@ ax_msg1() {
 			*)	c="0";
 		esac
 		# print colored word(s):
-		printf "\033[0;%sm%s\033[0m " "${c}" "${1}"
+		printf "\\033[0;%sm%s\\033[0m " "${c}" "${1}"
 	else
 		# print plain text:
 		printf "%s " "${1}"
