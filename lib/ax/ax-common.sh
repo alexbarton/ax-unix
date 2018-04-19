@@ -54,11 +54,7 @@ ax_msg() {
 ax_error() {
 	if [ "$1" = "-l" ]; then
 		shift
-		if [ -n "$NAME" ]; then
-			logger -t "$NAME" "$*"
-		else
-			logger "$*"
-		fi
+		logger -t "${NAME:-${0##*/}}" -p err "$*"
 	fi
 	ax_msg1 2 "$*" >&2
 }
