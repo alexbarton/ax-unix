@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # bup-save-user -- Save user data using bup(1)
-# Copyright (c)2013-2016 Alexander Barton (alex@barton.de)
+# Copyright (c)2013-2020 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ paths="$HOME"
 
 set -x
 
-bup index --update --xdev --exclude-rx="/.cache/." $paths || exit 1
+bup index --one-file-system --no-check-device --exclude-rx="/.cache/." $paths || exit 1
 
 bup save --name "$LOGNAME" $paths
 exit_code=$?
