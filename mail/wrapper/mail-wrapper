@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # mail-wrapper -- Report results of a command by email
-# Copyright (c)2017,2018 Alexander Barton (alex@barton.de)
+# Copyright (c)2017,2018,2023 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Initialize the "buffer file" on file handle #3. This file will store all
-# output, stdout and stderr combined. The file is immediately unliked so that
+# output, stdout and stderr combined. The file is immediately unlinked so that
 # we can't leak stale files. Afterwards this script accesses the "buffer file"
 # by its file descriptor only.
 buffer_file=$(mktemp) \
@@ -238,7 +238,7 @@ ax_debug "error_level=$error_level"
 # Build the report mail.
 # Make sure to ignore all mail(1) configuration files, system wide /etc/mailrc
 # (by using the "-n" option) as well as ~/.mailrc (by setting the MAILRC
-# environment varialbe).
+# environment variable).
 export MAILRC=/dev/null
 (
 	echo "$job report:"
