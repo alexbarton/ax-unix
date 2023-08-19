@@ -39,6 +39,7 @@ usage() {
 		echo "  --from|-f               Email address of the sender of the email."
 		echo "  --stderr-is-warning|-W  Exit code indicates error; stderr is only warning."
 		echo "  --subject|-s <subject>  Subject for the email."
+		echo "  --time|-t               Include timing information."
 		echo "  --to|-t <address>       Email address to send the email to."
 		echo
 		echo "When no <command> is given, $NAME reads from standard input. The default for"
@@ -58,6 +59,39 @@ clean_up() {
 		ax_debug "Cleaning temporary files ..."
 		[[ -n "$buffer_file" ]] && rm -f "$buffer_file"
 		[[ -n "$error_file" ]] && rm -f "$error_file"
+	fi
+}
+
+# Convert UNIX time stamp to date text.
+time_t_to_date() {
+	t="$1"
+	shift
+	if ! date -d @"$t" "$@" 2>/dev/null; then
+		# "date -d @<time_t>" (GNU variant) failed!
+		date -r "$t" "$@"
+	fi
+}
+
+time_t_to_duration() {
+	s="$1"
+	if [[ "$s" -ge 60 ]]; then
+		m=$((s / 60))
+		s=$((s % 60))
+		if [[ "$m" -ge 60 ]]; then
+			h=$((m / 60))
+			m=$((m % 60))
+			if [[ "$h" -ge 24 ]]; then
+				d=$((h / 24))
+				h=$((h % 24))
+				echo "${d}d${2}${h}h${2}${m}m${2}${s}s"
+			else
+				echo "${h}h${2}${m}m${2}${s}s"
+			fi
+		else
+			echo "${m}m${2}${s}s"
+		fi
+	else
+		echo "${s}s"
 	fi
 }
 
@@ -82,6 +116,7 @@ unset do_errors_only
 unset dont_fail
 unset stderr_is_warning
 unset subject
+unset time
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
 to="$from"
 
@@ -116,6 +151,9 @@ while [[ $# -gt 0 ]]; do
 			;;
 		"--stderr-is-warning"|"-W")
 			stderr_is_warning=1
+			;;
+		"--time"|"-t")
+			time=1
 			;;
 		"--suppress-empty")
 			# Ignore this switch for compatibility with an other
@@ -169,20 +207,24 @@ if [[ $# -gt 0 ]]; then
 	job=$(basename "$1")
 
 	ax_debug "Running command \"$*\" ..."
+	start_t=$EPOCHSECONDS
 	exit_code=$(
 		"$@" 2>&1 1>&3 | tee "$error_file" >&3
 		echo "${PIPESTATUS[0]}"
 	)
+	end_t=$EPOCHSECONDS
 else
 	# Read from stdin and save it to the buffer file.
 	error_file="/dev/null"
 	job="Job"
 
 	ax_debug "Reading from stdin ..."
+	start_t=$EPOCHSECONDS
 	while read -r line; do
 		echo "$line" >&3 \
 			|| ax_abort -l "Failed to write to buffer file!"
 	done
+	end_t=$EPOCHSECONDS
 	exit_code=0
 fi
 
@@ -247,6 +289,7 @@ export MAILRC=/dev/null
 	echo " - Host: $host"
 	echo " - User: $(id -un)"
 	echo " - Exit code: $exit_code"
+	[[ -n "$time" ]] && printf " - Duration: %s\n" "$(time_t_to_duration $((end_t - start_t)) ' ')"
 	echo
 	if [[ $# -gt 0 ]]; then
 		# A command name is known (not stdin), show it!
@@ -254,6 +297,7 @@ export MAILRC=/dev/null
 		echo "$@"
 		echo
 	fi
+	[[ -n "$time" ]] && printf "%s - %s:\n\n" "$(time_t_to_date "$start_t")" "$(time_t_to_date "$end_t")"
 	if [[ $count_err -gt 0 ]]; then
 		# Prefix mail with all error messages.
 		echo "Error summary:"
