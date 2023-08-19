@@ -41,7 +41,8 @@ usage() {
 		echo "  --subject|-s <subject>  Subject for the email."
 		echo "  --to|-t <address>       Email address to send the email to."
 		echo
-		echo "When no <command> is given, $NAME reads from standard input."
+		echo "When no <command> is given, $NAME reads from standard input. The default for"
+		echo "<from> and <to> for the current user is \"$to\"."
 		echo
 	} >&2
 	exit "${1:-0}"
