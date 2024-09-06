@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # mail-wrapper -- Report results of a command by email
-# Copyright (c)2017,2018,2023 Alexander Barton (alex@barton.de)
+# Copyright (c)2017-2024 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ usage() {
 		echo "  --from|-f               Email address of the sender of the email."
 		echo "  --stderr-is-warning|-W  Exit code indicates error; stderr is only warning."
 		echo "  --subject|-s <subject>  Subject for the email."
-		echo "  --time|-t               Include timing information."
+		echo "  --time|-i               Include timing information."
 		echo "  --to|-t <address>       Email address to send the email to."
 		echo
 		echo "When no <command> is given, $NAME reads from standard input. The default for"
@@ -152,7 +152,7 @@ while [[ $# -gt 0 ]]; do
 		"--stderr-is-warning"|"-W")
 			stderr_is_warning=1
 			;;
-		"--time"|"-t")
+		"--time"|"-i")
 			time=1
 			;;
 		"--suppress-empty")
