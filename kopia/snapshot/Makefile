@@ -8,6 +8,15 @@
 # (at your option) any later version.
 #
 
-SUBDIRS = lib kopia mail
+ALL = kopia-snapshot
 
-include Makefile.ax
+include ../../Makefile.ax
+
+check-local:
+	./kopia-snapshot --help 2>&1 | grep 'Usage:' >/dev/null
+
+install-local: kopia-snapshot
+	install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
+	 "$(DESTDIR)$(PREFIX)/bin"
+	install -p -o "$(USER)" -g "$(GROUP)" -m 755 kopia-snapshot \
+	 "$(DESTDIR)$(PREFIX)/bin/kopia-snapshot"

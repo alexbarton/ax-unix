@@ -8,6 +8,6 @@
 # (at your option) any later version.
 #
 
-SUBDIRS = lib kopia mail
+SUBDIRS = snapshot
 
-include Makefile.ax
+include ../Makefile.ax

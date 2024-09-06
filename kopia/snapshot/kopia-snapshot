@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -eu -o pipefail
+
+if [[ $# -lt 2 || "${1:-}" == "--help" ]]; then
+	echo "Usage: $0 <backend> <path> [<path> [...]]" >&2
+	exit 1
+fi
+
+run_kopia() {
+	set +e
+	out=$(/usr/bin/kopia "$@" 2>&1)
+	result=$?
+	set -e
+	if [[ $result -eq 0 ]]; then
+		echo "$out"
+	else
+		echo "$out" >&2
+	fi
+	return $result
+}
+
+# HOME may not be set for system services!
+[[ -n "${HOME:-}" ]] || export HOME="/root"
+
+backend="$1"
+shift
+
+run_kopia repository connect from-config \
+	--no-check-for-updates \
+	--token-file="${HOME}/.config/kopia/token-${backend}.config"
+
+run_kopia snapshot create --no-progress "$@"
