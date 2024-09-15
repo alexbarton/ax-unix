@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -eu -o pipefail
+
+if [[ $# -ne 0 || "${1:-}" == "--help" ]]; then
+	echo "Usage: $0" >&2
+	exit 1
+fi
+
+echo "Preparing ..."
+
+trap 'rm -f "${tmp1:-}" "${tmp2:-}"' EXIT
+
+tmp1=$(mktemp)
+tmp2=$(mktemp)
+
+kopia policy show --global >"$tmp1"
+kopia policy edit --global
+kopia policy show --global >"$tmp2"
+
+if command -v colordiff >/dev/null; then
+	colordiff -u "$tmp1" "$tmp2"
+else
+	diff -u "$tmp1" "$tmp2"
+fi

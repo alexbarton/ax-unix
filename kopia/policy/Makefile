@@ -8,6 +8,15 @@
 # (at your option) any later version.
 #
 
-SUBDIRS = policy snapshot
+ALL = kopia-policy-edit
 
-include ../Makefile.ax
+include ../../Makefile.ax
+
+check-local:
+	./kopia-policy-edit --help 2>&1 | grep 'Usage:' >/dev/null
+
+install-local: kopia-policy-edit
+	install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
+	 "$(DESTDIR)$(PREFIX)/bin"
+	install -p -o "$(USER)" -g "$(GROUP)" -m 755 kopia-policy-edit \
+	 "$(DESTDIR)$(PREFIX)/bin/kopia-policy-edit"
