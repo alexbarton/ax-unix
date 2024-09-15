@@ -7,6 +7,10 @@ if [[ $# -lt 2 || "${1:-}" == "--help" ]]; then
 	exit 1
 fi
 
+# Execute the kopia(1) binary with all parameters given, collect its output
+# and show it on stdout, when no error is signalled, or stderr, when it looks
+# like an error occurred.
+# The actual exit code of kopia(1) is returned.
 run_kopia() {
 	set +e
 	out=$(/usr/bin/kopia "$@" 2>&1)
@@ -30,4 +34,7 @@ run_kopia repository connect from-config \
 	--no-check-for-updates \
 	--token-file="${HOME}/.config/kopia/token-${backend}.config"
 
+# Note: we can't use progress output here, even on a terminal, because this
+# does not work with the output redirection of run_kopia(), which in turn
+# makes sure that errors are properly shown on stderr!
 run_kopia snapshot create --no-progress "$@"
