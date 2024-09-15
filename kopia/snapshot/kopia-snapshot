@@ -31,9 +31,15 @@ run_kopia() {
 backend="$1"
 shift
 
+token_file="${HOME}/.config/kopia/token-${backend}.config"
+if [[ ! -r "${token_file}" ]]; then
+	echo "Oops, token file \"${token_file}\" not found! Aborting!" >&2
+	exit 1
+fi
+
 run_kopia repository connect from-config \
 	--no-check-for-updates \
-	--token-file="${HOME}/.config/kopia/token-${backend}.config"
+	--token-file="${token_file}"
 
 # Note: we can't use progress output here, even on a terminal, because this
 # does not work with the output redirection of run_kopia(), which in turn
