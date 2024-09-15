@@ -13,13 +13,14 @@ fi
 # The actual exit code of kopia(1) is returned.
 run_kopia() {
 	set +e
-	out=$(/usr/bin/kopia "$@" 2>&1)
+	out=$(kopia "$@" 2>&1)
 	result=$?
 	set -e
 	if [[ $result -eq 0 ]]; then
 		echo "$out"
 	else
 		echo "$out" >&2
+		echo "Error, \"kopia $*\" returned with exit code $result!" >&2
 	fi
 	return $result
 }
