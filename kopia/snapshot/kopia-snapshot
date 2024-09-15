@@ -7,6 +7,10 @@ if [[ $# -lt 2 || "${1:-}" == "--help" ]]; then
 	exit 1
 fi
 
+# Neither Kopia nor this script is not localized, use the "C" locale for all
+# messages of all tools.
+export LC_ALL=C
+
 # Execute the kopia(1) binary with all parameters given, collect its output
 # and show it on stdout, when no error is signalled, or stderr, when it looks
 # like an error occurred.
@@ -31,6 +35,8 @@ run_kopia() {
 backend="$1"
 shift
 
+echo "$(date +%c): Connecting to repository \"${backend}\" ..."
+
 token_file="${HOME}/.config/kopia/token-${backend}.config"
 if [[ ! -r "${token_file}" ]]; then
 	echo "Oops, token file \"${token_file}\" not found! Aborting!" >&2
@@ -44,4 +50,12 @@ run_kopia repository connect from-config \
 # Note: we can't use progress output here, even on a terminal, because this
 # does not work with the output redirection of run_kopia(), which in turn
 # makes sure that errors are properly shown on stderr!
-run_kopia snapshot create --no-progress "$@"
+echo "$(date +%c): Starting backup ..."
+if run_kopia snapshot create --no-progress "$@"; then
+	result=0
+	echo "$(date +%c): Backup run done."
+else
+	result=$?
+	echo "$(date +%c): Backup run done, code $result!" >&2
+fi
+exit $result
