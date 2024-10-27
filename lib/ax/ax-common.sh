@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ax-common.sh -- Common Functions for Shell Scripts
-# Copyright (c)2013-2018 Alexander Barton (alex@barton.de)
+# Copyright (c)2013-2024 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ ax_msg1() {
 		"-")	c="1";  shift; ;;	# bold
 		*)	c="0";
 	esac
-	if [ -t 1 ]; then
+	if [ -z "${NO_COLOR}" ] && [ -t 1 ]; then
 		# writing to a terminal, print colored word(s):
 		printf "\\033[0;%sm%s\\033[0m " "${c}" "${1}"
 	else
