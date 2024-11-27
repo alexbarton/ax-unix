@@ -120,6 +120,9 @@ unset time
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
 to="$from"
 
+# Compatibility tweaks for bash <5 ...
+[[ -n "$EPOCHSECONDS" ]] || EPOCHSECONDS=$(date +%s)
+
 # Parse the command line ...
 while [[ $# -gt 0 ]]; do
 	case "$1" in
