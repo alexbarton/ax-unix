@@ -120,9 +120,6 @@ unset time
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
 to="$from"
 
-# Compatibility tweaks for bash <5 ...
-[[ -n "$EPOCHSECONDS" ]] || EPOCHSECONDS=$(date +%s)
-
 # Parse the command line ...
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -210,24 +207,24 @@ if [[ $# -gt 0 ]]; then
 	job=$(basename "$1")
 
 	ax_debug "Running command \"$*\" ..."
-	start_t=$EPOCHSECONDS
+	start_t=${EPOCHSECONDS:-$(date +%s)}
 	exit_code=$(
 		"$@" 2>&1 1>&3 | tee "$error_file" >&3
 		echo "${PIPESTATUS[0]}"
 	)
-	end_t=$EPOCHSECONDS
+	end_t=${EPOCHSECONDS:-$(date +%s)}
 else
 	# Read from stdin and save it to the buffer file.
 	error_file="/dev/null"
 	job="Job"
 
 	ax_debug "Reading from stdin ..."
-	start_t=$EPOCHSECONDS
+	start_t=${EPOCHSECONDS:-$(date +%s)}
 	while read -r line; do
 		echo "$line" >&3 \
 			|| ax_abort -l "Failed to write to buffer file!"
 	done
-	end_t=$EPOCHSECONDS
+	end_t=${EPOCHSECONDS:-$(date +%s)}
 	exit_code=0
 fi
 
