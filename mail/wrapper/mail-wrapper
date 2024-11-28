@@ -273,10 +273,10 @@ ax_debug "error_level=$error_level"
 
 # No errors detected (exit code & stderr), and email should be sent on errors
 # only: so exit early!
-[[ "$error_level" -lt 2 && -n "$do_errors_only" ]] && exit $exit_code
+[[ "$error_level" -lt 2 && -n "$do_errors_only" ]] && exit "$exit_code"
 
 # No error detected and no output at all: skip email, exit early:
-[[ "$error_level" -eq 0 && $count_all -eq 0 ]] && exit $exit_code
+[[ "$error_level" -eq 0 && $count_all -eq 0 ]] && exit "$exit_code"
 
 # Build the report mail.
 # Make sure to ignore all mail(1) configuration files, system wide /etc/mailrc
@@ -315,4 +315,4 @@ export MAILRC=/dev/null
 ) | mail -n -a "From: $from" -s "$subject" "$to" \
 	|| ax_abort -l "Failed to send email to \"$to\"!"
 
-[[ -n "$dont_fail" ]] && exit 0 || exit $exit_code
+[[ -n "$dont_fail" ]] && exit 0 || exit "$exit_code"
