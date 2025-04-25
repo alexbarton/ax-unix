@@ -8,7 +8,6 @@
 # (at your option) any later version.
 #
 
-SUBDIRS  = lib
-SUBDIRS += cache kopia mail
+SUBDIRS = cachedir
 
-include Makefile.ax
+include ../Makefile.ax

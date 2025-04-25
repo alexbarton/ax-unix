@@ -8,7 +8,15 @@
 # (at your option) any later version.
 #
 
-SUBDIRS  = lib
-SUBDIRS += cache kopia mail
+ALL = cachedir
 
-include Makefile.ax
+include ../../Makefile.ax
+
+check-local:
+	./cachedir --help 2>&1 | grep 'Usage:' >/dev/null
+
+install-local: cachedir
+	install -d -o "$(USER)" -g "$(GROUP)" -m 755 \
+	 "$(DESTDIR)$(PREFIX)/bin"
+	install -p -o "$(USER)" -g "$(GROUP)" -m 755 cachedir \
+	 "$(DESTDIR)$(PREFIX)/bin/cachedir"

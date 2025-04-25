@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+#
+# cachedir -- Tool for handling CACHEDIR.TAG files
+# Copyright (c)2024 Alexander Barton (alex@barton.de)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+set -eu -o pipefail
+
+Usage() {
+	(
+		echo "Usage: $0 <command> [<options>]"
+		echo
+		echo "  status [<dir>]"
+		echo "  mark [<dir>]"
+		echo "  unmark [<dir>]"
+		echo "  automark [<home_dir>]"
+		echo
+	) >&2
+}
+
+Create_CachedirTag() {
+	if [[ ! -d "$1" ]]; then
+		echo "Not a directory: \"$1\"!" >&2
+		return 1
+	fi
+	tag_file="$1/CACHEDIR.TAG"
+	size=$(du -sh "$1" | awk '{print $1}')
+
+	if [[ -e "${tag_file}" ]]; then
+		echo "Directory \"$1\" is already marked, skipping (${size})."
+		return 0
+	fi
+
+	# Create new tag file.
+	(
+		date=$(date)
+		echo "Signature: 8a477f597d28d172789f06886806bc55"
+		echo "Created: ${date}"
+		echo "# This file is a cache directory tag."
+		echo "# For information about cache directory tags, see:"
+		echo "#	http://www.brynosaurus.com/cachedir/"
+	) >"${tag_file}"
+	echo "Marked \"$1\" directory as cache (${size})."
+}
+
+Remove_CachedirTag() {
+	if [[ ! -d "$1" ]]; then
+		echo "Not a directory: \"$1\"!" >&2
+		return 1
+	fi
+	tag_file="$1/CACHEDIR.TAG"
+
+	if [[ -e "${tag_file}" ]]; then
+		size=$(du -sh "$1" | awk '{print $1}')
+		rm -f "${tag_file}"
+		echo "Directory \"$1\" is no longer marked as cache (${size})."
+	else
+		echo "Directory \"$1\" is not marked as cache."
+	fi
+}
+
+CachedirTag_Status() {
+	if [[ ! -d "$1" ]]; then
+		echo "Not a directory: \"$1\"!" >&2
+		return 1
+	fi
+	tag_file="$1/CACHEDIR.TAG"
+
+	if [[ -e "${tag_file}" ]]; then
+		size=$(du -sh "$1" | awk '{print $1}')
+		echo "Directory \"$1\" is marked as cache (${size})."
+		return 0
+	else
+		echo "Directory \"$1\" is not marked as cache."
+		return 1
+	fi
+}
+
+Auto_Mark() {
+	echo "Auto-marking in \"$1\" ..."
+
+	# Find cache directories:
+	find "$1" -xdev \
+		-name .cache -prune \
+		-o -name Cache -prune \
+		-o -name CacheData -prune \
+		-o -name CacheStorage -prune \
+		-o -name Cache_Data -prune \
+		-o -name Cache_Storage -prune \
+		-o -name CachedData -prune \
+		-o -name "CachedExtension*" -prune \
+		-o -name "CachedProfile*" -prune \
+	 2>/dev/null | while read -r dir; do
+		Create_CachedirTag "${dir}"
+	done
+
+	# Find items inside of a cache directory:
+	#
+	# extensions_crx_cache/: Chrome-based browsers.
+	# xulstore.json: Mozilla-based browsers.
+	#
+	find "$1" -xdev \
+		-name extensions_crx_cache \
+		-o -name xulstore.json \
+	 2>/dev/null | while read -r name; do
+		dir=$(dirname "${name}")
+		Create_CachedirTag "${dir}"
+	done
+}
+
+case "${1:-}" in
+	"automark")
+		Auto_Mark "${2:-${HOME}}"
+		;;
+	"mark")
+		if [[ $# -ne 2 ]]; then
+			Usage
+			exit 1
+		fi
+		Create_CachedirTag "$2"
+		;;
+	"unmark")
+		if [[ $# -ne 2 ]]; then
+			Usage
+			exit 1
+		fi
+		Remove_CachedirTag "$2"
+		;;
+	"status")
+		if [[ $# -ne 2 ]]; then
+			Usage
+			exit 1
+		fi
+		CachedirTag_Status "$2"
+		;;
+	*)
+		Usage
+		exit 1
+esac
