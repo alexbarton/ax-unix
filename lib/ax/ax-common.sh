@@ -12,7 +12,7 @@
 # "ax_common_sourced" is a flag and stores the "API version" of "ax-common.sh",
 # too. It should be incremented each time the public API changes!
 # shellcheck disable=SC2034
-ax_common_sourced=2
+ax_common_sourced=3
 
 # Display a colored message (a plain message, when not writing to a terminal).
 #  $1    Level: -=title, 0=ok, 1=warning, 2=error.
@@ -81,4 +81,37 @@ ax_abort() {
 # variable "DEBUG" is set.
 ax_debug() {
 	[ -n "$DEBUG" ] && ax_msg1 1 "DEBUG:" "$*"
+}
+
+# Show progress in the terminal.
+# See <https://gitlab.freedesktop.org/terminal-wg/specifications/-/issues/29>.
+#  $1  0-100: Set progress to "$1" %.
+#      "clear": Clear any progress indicator.
+#      "error": Indicate an "error" condition.
+#      "running": Indicate an ongoing task with unknown progress.
+#  $2  When $1 is a progress value (0-100), this indicates the state/color:
+#      "ok"|"green": green color.
+#      "warning"|"orange": orange color.
+#      "error"|"red": red color.
+# (Introduced with ax_common_sourced=3)
+ax_progress() {
+	case "$1" in
+		[0-9]|[1-9][0-9]|100)
+			if [ -n "${2:-}" ]; then
+				case "$2" in
+					ok|green) state=1 ;;
+					warning|orange) state=4 ;;
+					error|red) state=2 ;;
+					*) state=1
+				esac
+				printf '\e]9;4;%d;%d\a' "${state}" "$1"
+			else
+				printf '\e]9;4;1;%d\a' "$1"
+			fi
+			;;
+		clear) printf '\e]9;4;0\a' ;;
+		error) printf '\e]9;4;2\a' ;;
+		running) printf '\e]9;4;3\a' ;;
+		*) return 0
+	esac
 }
