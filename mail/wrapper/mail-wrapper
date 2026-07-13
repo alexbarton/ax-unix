@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # mail-wrapper -- Report results of a command by email
-# Copyright (c)2017-2024 Alexander Barton (alex@barton.de)
+# Copyright (c)2017-2026 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,6 +93,16 @@ time_t_to_duration() {
 	else
 		echo "${s}s"
 	fi
+}
+
+do_mail() {
+	case "${OSTYPE:-}" in
+	darwin*)
+		mail -n -s "$subject" "$to"
+		;;
+	*)
+		mail -n -a "From: $from" -s "$subject" "$to"
+	esac
 }
 
 case "$(uname)" in
@@ -312,7 +322,6 @@ export MAILRC=/dev/null
 		cat "$buffer_file" \
 			|| ax_abort -l "Failed to dump buffer file!"
 	fi
-) | mail -n -a "From: $from" -s "$subject" "$to" \
-	|| ax_abort -l "Failed to send email to \"$to\"!"
+) | do_mail || ax_abort -l "Failed to send email to \"$to\"!"
 
 [[ -n "$dont_fail" ]] && exit 0 || exit "$exit_code"
