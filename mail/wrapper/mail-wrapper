@@ -37,6 +37,7 @@ usage() {
 		echo "  --dontfail|-n           Don't return the error code of the command called."
 		echo "  --errors|-e             Generate email on errors only."
 		echo "  --from|-f               Email address of the sender of the email."
+		echo "  --limit|-l <number>     Limit <command> output to at most <number> lines."
 		echo "  --stderr-is-warning|-W  Exit code indicates error; stderr is only warning."
 		echo "  --subject|-s <subject>  Subject for the email."
 		echo "  --time|-i               Include timing information."
@@ -95,6 +96,28 @@ time_t_to_duration() {
 	fi
 }
 
+summarize_file() {
+	local file=$1
+	local -i max_lines=${2:-100}
+	local -i lines=${3:-$(wc -l "$1")}
+
+	if [[ $lines -le $max_lines ]]; then
+		cat "$file"
+	else
+		if [[ $max_lines -ge 10 ]]; then
+			local -i top_lines=$((max_lines / 2))
+			local -i bottom_lines=$top_lines
+		else
+			local -i top_lines=0
+			local -i bottom_lines=$max_lines
+		fi
+		printf "[%d lines lines are more than the limit of %d! Splitting output %d/%d.]\n\n" $lines $max_lines $top_lines $bottom_lines
+		[[ $top_lines -gt 0 ]] && head -n $top_lines "$file"
+		printf "[ ... ]\n"
+		[[ $bottom_lines -gt 0 ]] && tail -n $bottom_lines "$file"
+	fi
+}
+
 do_mail() {
 	case "${OSTYPE:-}" in
 	darwin*)
@@ -129,6 +152,7 @@ unset subject
 unset time
 from="${LOGNAME:-root} <${LOGNAME:-root}@$host>"
 to="$from"
+declare -i max_lines=20000
 
 # Parse the command line ...
 while [[ $# -gt 0 ]]; do
@@ -150,6 +174,11 @@ while [[ $# -gt 0 ]]; do
 			shift
 			[[ $# -gt 0 ]] || syntax_error
 			from="$1"
+			;;
+		"--limit"|"-l")
+			shift
+			[[ $# -gt 0 ]] || syntax_error
+			max_lines="$1"
 			;;
 		"--help"|"--usage")
 			usage
@@ -312,14 +341,14 @@ export MAILRC=/dev/null
 		# Prefix mail with all error messages.
 		echo "Error summary:"
 		echo "-----------------------------------------------------------------------------"
-		cat "$error_file" \
+		summarize_file "$error_file" $max_lines $count_err \
 			|| ax_abort -l "Failed to dump error file!"
 		echo "-----------------------------------------------------------------------------"
 		echo
 	fi
 	if [[ $count_all -ne $count_err ]]; then
 		# Show full output when different to "error output" only.
-		cat "$buffer_file" \
+		summarize_file "$buffer_file" $max_lines $count_all \
 			|| ax_abort -l "Failed to dump buffer file!"
 	fi
 ) | do_mail || ax_abort -l "Failed to send email to \"$to\"!"
